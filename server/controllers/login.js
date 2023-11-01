@@ -1,28 +1,26 @@
 import bcrypt from 'bcrypt';
-import Userauth from '../model/model.js'; // Replace with your User model
+import Userauth from '../model/model.js'; 
 import jwt from 'jsonwebtoken';
 
 const loginUser = async (req, res) => {
-  console.log('////////////////////////////////////////////');
+ const jwt_secret = process.env.jwt_secret
   const { email, password } = req.body;
 
   try {
-    // Check if the user exists in the database
+   
     const user = await Userauth.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(402).json({ error: 'Invalid credentials' });
     }
 
-    // Verify the provided password against the hashed password in the database
+    
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-      // Passwords match, user is authenticated
-
-      // Generate a JWT token after successful login
-      const token = jwt.sign({ email: user.email }, 'your-secret-key', {
-        expiresIn: '1h', // Token expires in 1 hour
+      
+      const token = jwt.sign({ email: user.email }, jwt_secret, {
+        expiresIn: '1h', 
       });
 
       res.status(200).json({
@@ -31,7 +29,7 @@ const loginUser = async (req, res) => {
         token: token,
       });
     } else {
-      res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
     console.error(error);

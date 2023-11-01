@@ -9,7 +9,7 @@ const Authenticate = () => {
   const [otp, setOtp] = useState('');
   const { email } = useParams();
   const history = useNavigate();
-  console.log('>>>>>>>>>>'+email+'<<<<<<<<<<<');
+  
 
   const handleOtpChange = (e) => {
     setOtp(e.target.value);
@@ -19,16 +19,17 @@ const Authenticate = () => {
     e.preventDefault();
 
     try {
-      // Send OTP to the backend for verification
-      console.log('><<<<<<<<<<<<>'+email+'<<<<<<<<<<<');
-      await axios.post(`http://localhost:5000/verification`, { email, otp }); // Replace API_BASE_URL with your actual API URL
-      // Handle success, e.g., redirect the user to a success page
-      // You can use React Router to redirect the user to a success page
-      // Example: history.push('/verification-success');
+      
+      
+      const response = await axios.post(`http://localhost:5000/verification`, { email, otp }); 
+      if (response.data.token) {
+        localStorage.setItem('jwtToken', response.data.token);
+      }
+      
       history('/homepage');
     } catch (error) {
       console.error('OTP verification error', error);
-      // Handle error, e.g., display an error message to the user
+      
     }
   };
 
@@ -37,12 +38,12 @@ const Authenticate = () => {
     <div className="w-full p-4 flex items-center justify-center h-screen">
       <div className="bg-white rounded-lg shadow-lg p-2 w-full xs:w-full sm:w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
         <h1 className="text-2xl font-bold flex items-center justify-center mb-4">
-          Enter OTP
+          Please Enter the OTP
         </h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-              OTP
+            <label htmlFor="otp" className="block text-sm font-medium text-center text-gray-700">
+              The One Time Password has bee sent to your email ID
             </label>
             <input
               required
@@ -57,7 +58,7 @@ const Authenticate = () => {
 
           <div className="mb-4 flex items-center justify-center">
             <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
-              Verify OTP
+              Continue
             </button>
           </div>
         </form>

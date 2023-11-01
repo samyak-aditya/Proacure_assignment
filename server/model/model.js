@@ -27,7 +27,7 @@ const userSchema = new Schema({
     required: true,
   },
   otp: {
-    type: Number, // You can adjust the type for the OTP as needed
+    type: Number, 
   },
   emailVerified: {
     type: Boolean,

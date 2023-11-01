@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import hide from '../assets/hide.png'; 
+import { useNavigate, Link } from 'react-router-dom';
+import signupimg from '../assets/signup.png';
+import axios from 'axios';
 
 const SignupPage = () => {
   const [fullName, setFullName] = useState('');
@@ -12,6 +13,7 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordMatch, setPasswordMatch] = useState(true);
+  const [error, setError] = useState(''); 
   const history = useNavigate();
 
   const handleConfirmPasswordChange = (e) => {
@@ -27,20 +29,48 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Your signup logic here
+    try {
+      const response = await axios.post('http://localhost:5000/signup', {
+        fullName,
+        companyName,
+        email,
+        role,
+        department,
+        password,
+      });
 
-    // After successful signup, you can redirect to the desired page, e.g., login page
-    history('/login');
+      console.log('Signup successful', response);
+      history(`/authenticate/${email}`);
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message); 
+      } else {
+        setError('An error occurred during signup');
+      }
+
+      setTimeout(() => {
+        setError(''); 
+      }, 5000); 
+    }
   };
 
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center">
       <div className="flex items-end justify-center w-1/2 p-8">
-        {/* Add your image or content here */}
+        <img src={signupimg} alt="" />
       </div>
       <div className="w-full p-4 lg:w-1/2 flex items-center justify-center h-screen">
         <div className="bg-white flex-col lg:flex-row rounded-lg shadow-lg p-2 lg:w-1/2 xl:w-1.5/2 xs:w-full sm:w-full overflow-y-auto">
-          <h1 className="text-2xl flex items-center justify-center font-bold mb-4">Signup</h1>
+          <h1 className="text-2xl flex items-center justify-center font-bold mb-4">Sign Up</h1>
+          <p className="">
+            Have an Account? <Link className="font-bold" to="/login">Login</Link>
+          </p>
+          <br />
+          {error && ( 
+            <div className="bg-red-200 text-red-600 p-2 mb-4 rounded">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="mb-4 flex flex-wrap">
               <div className="w-1/2 pr-2">
@@ -122,20 +152,14 @@ const SignupPage = () => {
                   Password
                 </label>
                 <input
-                    required
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    className="mt-1 p-2 w-full border-2 rounded-md shadow-lg focus:outline-none focus:ring-1 focus:shadow-sm focus:ring-gray-400"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <span
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="relative  right-0 flex items-center pr-2 cursor-pointer"
-                  >
-                   <img src={hide} alt="Eye" className="w-6 h-6" />
-                  </span>
+                  required
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  className="mt-1 p-2 w-full border-2 rounded-md shadow-lg focus:outline-none focus:ring-1 focus:shadow-sm focus:ring-gray-400"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
             </div>
             <div className={`mb-4 ${!passwordMatch ? 'border-red-500' : ''}`}>
@@ -156,7 +180,6 @@ const SignupPage = () => {
             </div>
             <div className="mb-4">
               <input
-                required
                 type="checkbox"
                 id="showPassword"
                 className="mr-2"
